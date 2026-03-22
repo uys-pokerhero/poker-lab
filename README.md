@@ -26,6 +26,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -U pip
 python3 -m pip install -e ".[dev]"
+# For notebook-based data analysis:
+python3 -m pip install -e ".[analysis]"
 ```
 
 Run tests:
@@ -48,6 +50,11 @@ python3 -m pokerlab bankroll simulate --winrate-bb100 5 --sd-bb100 80 --hands 20
 
 - `src/pokerlab/`: Python package code (tools live here)
 - `tests/`: pytest tests
+- `notebooks/`: notebook-based analysis workflows
+
+## Analysis notebooks
+
+- `notebooks/fourbet_analysis.ipynb`: cold 4-bet feature engineering, OLS models, AIC-based variable selection, and grouped actual-versus-expected plots.
 
 ## Next tool ideas
 
