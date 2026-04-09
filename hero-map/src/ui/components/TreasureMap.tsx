@@ -27,7 +27,12 @@ export function TreasureMap() {
   }, []);
 
   return (
-    <div className="map-container" ref={containerRef}>
+    <div
+      className="map-container"
+      ref={containerRef}
+      role="img"
+      aria-label="Interactive treasure map showing poker learning topics. Use the text navigation below for an accessible alternative."
+    >
       <MapPaths
         locations={locations}
         edges={edges}

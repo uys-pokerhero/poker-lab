@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { MapLocation as MapLocationData } from "../../data/locations";
 
 interface Props {
@@ -118,7 +118,22 @@ function LocationIcon({ icon, size }: { icon: string; size: number }) {
 
 export function MapLocationMarker({ location }: Props) {
   const [hovered, setHovered] = useState(false);
+  const [touched, setTouched] = useState(false);
   const iconSize = 32;
+  const showTooltip = hovered || touched;
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!touched) {
+      e.preventDefault();
+      setTouched(true);
+    }
+  }, [touched]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (touched) {
+      setTimeout(() => setTouched(false), 3000);
+    }
+  }, [touched]);
 
   return (
     <a
@@ -128,20 +143,29 @@ export function MapLocationMarker({ location }: Props) {
         left: `${location.x}%`,
         top: `${location.y}%`,
       }}
+      aria-label={`${location.name} — ${location.description}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <svg
-        className={`map-location-icon ${hovered ? "map-location-icon--hovered" : ""}`}
+        className={`map-location-icon ${showTooltip ? "map-location-icon--hovered" : ""}`}
         width={iconSize}
         height={iconSize}
         viewBox={`0 0 ${iconSize} ${iconSize}`}
+        aria-hidden="true"
+        focusable="false"
       >
         <LocationIcon icon={location.icon} size={iconSize} />
       </svg>
       <span className="map-location-name">{location.name}</span>
-      {hovered && (
-        <span className="map-location-tooltip">{location.description}</span>
+      {showTooltip && (
+        <span className="map-location-tooltip" role="tooltip">
+          {location.description}
+        </span>
       )}
     </a>
   );

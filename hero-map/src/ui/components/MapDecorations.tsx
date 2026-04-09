@@ -1,6 +1,6 @@
 export function MapDecorations() {
   return (
-    <>
+    <div aria-hidden="true">
       {/* Sea monster silhouette */}
       <svg className="decoration decoration--monster" viewBox="0 0 120 60" width={120} height={60}>
         <path
@@ -43,6 +43,6 @@ export function MapDecorations() {
         <path d="M 18 22 Q 20 8, 22 22" fill="#6b4226" opacity={0.1} />
         <path d="M 16 20 Q 20 12, 24 20" fill="#6b4226" opacity={0.06} />
       </svg>
-    </>
+    </div>
   );
 }

@@ -25,6 +25,8 @@ export function CompassRose() {
       viewBox={`0 0 ${size} ${size}`}
       width={size}
       height={size}
+      aria-hidden="true"
+      focusable="false"
     >
       {/* Outer ring */}
       <circle
