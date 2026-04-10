@@ -56,6 +56,10 @@ export function App() {
 
   return (
     <div className="pvh-variance-root">
+      <h1 className="page-title">Variance Calculator</h1>
+      <p className="page-subtitle">
+        Chart thy bankroll's fortune across the seas of variance
+      </p>
       <div className="layout">
         <aside className="layout-inputs">
           <Inputs values={inputs} onChange={setInputs} />
