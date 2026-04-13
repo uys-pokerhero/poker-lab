@@ -2,109 +2,74 @@ export interface MapLocation {
   id: string;
   name: string;
   description: string;
-  x: number;
-  y: number;
   url: string;
-  icon: LocationIcon;
-}
-
-export type LocationIcon =
-  | "anchor"
-  | "chest"
-  | "skull"
-  | "swords"
-  | "spyglass"
-  | "flag"
-  | "wheel"
-  | "compass";
-
-export interface MapEdge {
-  from: string;
-  to: string;
+  icon: string;
+  available: boolean;
 }
 
 export const locations: MapLocation[] = [
   {
     id: "rules",
-    name: "Beginner's Port",
+    name: "Beginner's Guide",
     description: "Learn the rules of Texas Hold'em and hand rankings.",
-    x: 12,
-    y: 72,
     url: "#rules",
-    icon: "anchor",
+    icon: "\u2660",
+    available: false,
   },
   {
     id: "bankroll",
-    name: "Bankroll Bay",
+    name: "Bankroll Management",
     description: "Master mindset, tilt control, and bankroll management.",
-    x: 24,
-    y: 38,
     url: "#bankroll",
-    icon: "chest",
-  },
-  {
-    id: "bluff",
-    name: "Bluff Reef",
-    description: "Bluffing, semi-bluffing, and the power of position.",
-    x: 40,
-    y: 62,
-    url: "#bluff",
-    icon: "skull",
+    icon: "\u{1FA99}",
+    available: false,
   },
   {
     id: "preflop",
-    name: "Pre-Flop Plains",
+    name: "Pre-Flop Strategy",
     description: "Opening ranges, 3-betting, and pre-flop decision making.",
-    x: 52,
-    y: 28,
     url: "#preflop",
-    icon: "swords",
+    icon: "\u2694",
+    available: false,
   },
   {
     id: "postflop",
-    name: "Post-Flop Forest",
+    name: "Post-Flop Play",
     description: "Continuation betting, pot odds, and board texture reading.",
-    x: 62,
-    y: 54,
     url: "#postflop",
-    icon: "spyglass",
+    icon: "\u{1F50D}",
+    available: false,
+  },
+  {
+    id: "bluff",
+    name: "Bluffing & Position",
+    description: "Bluffing, semi-bluffing, and the power of position.",
+    url: "#bluff",
+    icon: "\u{1F3AD}",
+    available: false,
   },
   {
     id: "tournament",
-    name: "Tournament Towers",
+    name: "Tournament Strategy",
     description: "ICM, bubble play, and multi-table tournament strategy.",
-    x: 78,
-    y: 32,
     url: "#tournament",
-    icon: "flag",
+    icon: "\u{1F3C6}",
+    available: false,
   },
   {
     id: "exploitation",
-    name: "Exploitation Cove",
+    name: "Exploitation",
     description: "Identify and exploit opponent tendencies and leaks.",
-    x: 88,
-    y: 58,
     url: "#exploitation",
-    icon: "wheel",
+    icon: "\u{1F9E0}",
+    available: false,
   },
   {
     id: "variance",
-    name: "Variance Valley",
+    name: "Variance Calculator",
     description: "Understand variance, standard deviation, and risk of ruin.",
-    x: 44,
-    y: 85,
-    url: "#variance",
-    icon: "compass",
+    url: "/variance",
+    icon: "\u{1F4C8}",
+    available: true,
   },
-];
-
-export const edges: MapEdge[] = [
-  { from: "rules", to: "bankroll" },
-  { from: "bankroll", to: "preflop" },
-  { from: "rules", to: "bluff" },
-  { from: "bluff", to: "postflop" },
-  { from: "preflop", to: "postflop" },
-  { from: "postflop", to: "tournament" },
-  { from: "tournament", to: "exploitation" },
-  { from: "rules", to: "variance" },
 ];

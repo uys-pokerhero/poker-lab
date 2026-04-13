@@ -56,9 +56,12 @@ export function App() {
 
   return (
     <div className="pvh-variance-root">
+      <nav className="back-nav">
+        <a href="/" className="back-link">&larr; Poker Lab</a>
+      </nav>
       <h1 className="page-title">Variance Calculator</h1>
       <p className="page-subtitle">
-        Chart thy bankroll's fortune across the seas of variance
+        Estimate the range of outcomes for your poker sessions
       </p>
       <div className="layout">
         <aside className="layout-inputs">
