@@ -3,7 +3,7 @@ import { Inputs, type InputValues } from "./components/Inputs";
 import { Results } from "./components/Results";
 import { FanChart } from "./components/FanChart";
 import { profitMean } from "../core/profit";
-import { rorAfterHands, rorEventually } from "../core/ror";
+import { rorAfterHands } from "../core/ror";
 import { generateFanChartData } from "../core/grid";
 import { buyinsToBb } from "../core/units";
 import "./styles.css";
@@ -12,9 +12,9 @@ const DEFAULTS: InputValues = {
   unit: "bb",
   bankroll: 2000,
   buyinSize: 100,
-  winrate: 3,
-  sd: 80,
-  volume: 50_000,
+  winrate: 12,
+  sd: 150,
+  volume: 10_000,
 };
 
 export function App() {
@@ -36,11 +36,6 @@ export function App() {
   const bustProbN = useMemo(
     () => rorAfterHands(bankrollBb, inputs.winrate, inputs.sd, inputs.volume),
     [bankrollBb, inputs.winrate, inputs.sd, inputs.volume]
-  );
-
-  const eventualRuin = useMemo(
-    () => rorEventually(bankrollBb, inputs.winrate, inputs.sd),
-    [bankrollBb, inputs.winrate, inputs.sd]
   );
 
   const fanData = useMemo(
@@ -71,7 +66,6 @@ export function App() {
           <Results
             expectedProfit={expectedProfit}
             bustProbN={bustProbN}
-            eventualRuin={eventualRuin}
             winrate={inputs.winrate}
             sd={inputs.sd}
             volume={inputs.volume}
@@ -93,7 +87,7 @@ export function App() {
               </li>
               <li>
                 <strong>Non-stationarity:</strong> Games change over time;
-                moving up in stakes changes both winrate and SD.
+                moving up in stakes changes both winrate and standard deviation.
               </li>
               <li>
                 <strong>Tilt / quit behavior:</strong> Stop-losses, quitting

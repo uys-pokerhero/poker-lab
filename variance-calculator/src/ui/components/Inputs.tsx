@@ -99,7 +99,7 @@ export function Inputs({ values, onChange }: InputsProps) {
         1,
         300,
         1,
-        "Measures how swingy your results are. Depends on play style, stake, rake, and game type. 60\u2013100 is common for NLHE cash.",
+        "Measures how swingy your results are. Depends on play style, stake, rake, and game type. 100\u2013200 is common for NLHE cash.",
         "bb/100"
       )}
 
@@ -113,9 +113,9 @@ export function Inputs({ values, onChange }: InputsProps) {
       <details className="assumptions">
         <summary>Assumptions &amp; Limitations</summary>
         <ul>
-          <li>Results assume iid outcomes with constant winrate and SD.</li>
+          <li>Results assume iid outcomes with constant winrate and standard deviation.</li>
           <li>Ignores table selection changes, tilt, and quitting behavior.</li>
-          <li>SD treated as constant across stakes and time.</li>
+          <li>Standard deviation treated as constant across stakes and time.</li>
           <li>Normal approximation improves at larger sample sizes.</li>
         </ul>
       </details>
