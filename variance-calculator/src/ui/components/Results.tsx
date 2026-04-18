@@ -1,7 +1,6 @@
 interface ResultsProps {
   expectedProfit: number;
   bustProbN: number;
-  eventualRuin: number;
   winrate: number;
   sd: number;
   volume: number;
@@ -45,11 +44,11 @@ function getWarnings(wr: number, sd: number, volume: number): Warning[] {
         "Very high winrate entered \u2014 double-check your estimate. Selection bias is common.",
     });
   }
-  if (sd < 30 || sd > 150) {
+  if (sd < 60 || sd > 250) {
     warnings.push({
       key: "unusual-sd",
       message:
-        "Unusual SD entered. Cash game SD typically falls between 60\u2013120 bb/100.",
+        "Unusual standard deviation entered. Cash game standard deviation typically falls between 100\u2013200 bb/100.",
     });
   }
   if (wr <= 0) {
@@ -65,7 +64,6 @@ function getWarnings(wr: number, sd: number, volume: number): Warning[] {
 export function Results({
   expectedProfit,
   bustProbN,
-  eventualRuin,
   winrate,
   sd,
   volume,
@@ -104,18 +102,6 @@ export function Results({
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-label">Eventual Ruin</div>
-          {winrate > 0 ? (
-            <div className={`stat-value ${eventualRuin > 0.5 ? "negative" : "positive"}`}>
-              {fmtPct(eventualRuin)}
-            </div>
-          ) : (
-            <div className="stat-value negative stat-value-small">
-              ~100% if you play forever with a non-positive edge
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="how-to-use">

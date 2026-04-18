@@ -9,6 +9,14 @@ export interface MapLocation {
 
 export const locations: MapLocation[] = [
   {
+    id: "variance",
+    name: "Variance Calculator",
+    description: "Understand variance and your risk of ruin.",
+    url: "/variance",
+    icon: "\u{1F4C8}",
+    available: true,
+  },
+  {
     id: "rules",
     name: "Beginner's Guide",
     description: "Learn the rules of Texas Hold'em and hand rankings.",
@@ -63,13 +71,5 @@ export const locations: MapLocation[] = [
     url: "#exploitation",
     icon: "\u{1F9E0}",
     available: false,
-  },
-  {
-    id: "variance",
-    name: "Variance Calculator",
-    description: "Understand variance, standard deviation, and risk of ruin.",
-    url: "/variance",
-    icon: "\u{1F4C8}",
-    available: true,
   },
 ];
