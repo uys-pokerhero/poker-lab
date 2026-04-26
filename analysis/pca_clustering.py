@@ -39,6 +39,9 @@ CLUSTER_DIR = OUTPUT_ROOT / "clustering"
 
 DPI = 150
 
+# Fixed number of hand groups (set after inspecting elbow / silhouette plots).
+HANDS_K = 6
+
 
 # --------------------------------------------------------------------------- #
 # Data loading                                                                 #
@@ -356,8 +359,10 @@ def cluster_hands(scaled: np.ndarray, hand_labels: list[str], pca_full: PCA) -> 
     k_max = min(10, max(2, n_samples - 1))
     k_range = range(2, k_max + 1)
     inertias, silhouettes = kmeans_sweep(reduced, k_range)
-    chosen_k = choose_k(silhouettes, k_range)
-    print(f"Chosen k for hands: {chosen_k}")
+    best_silhouette_k = choose_k(silhouettes, k_range)
+    chosen_k = HANDS_K
+    print(f"Best-silhouette k for hands: {best_silhouette_k}")
+    print(f"Using fixed k for hands: {chosen_k}")
 
     plot_elbow_silhouette(
         k_range, inertias, silhouettes, chosen_k,
