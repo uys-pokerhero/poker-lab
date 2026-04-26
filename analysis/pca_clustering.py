@@ -32,7 +32,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_INPUT = REPO_ROOT / "analysis" / "sample_data.csv"
+DEFAULT_INPUT = REPO_ROOT / "analysis" / "poker_data.csv"
 OUTPUT_ROOT = REPO_ROOT / "output"
 PCA_DIR = OUTPUT_ROOT / "pca"
 CLUSTER_DIR = OUTPUT_ROOT / "clustering"
@@ -350,7 +350,7 @@ def cluster_hands(scaled: np.ndarray, hand_labels: list[str], pca_full: PCA) -> 
     CLUSTER_DIR.mkdir(parents=True, exist_ok=True)
     reduced, n_comp = pca_for_clustering(scaled, 0.85)
     print(f"\n=== Hand clustering ===")
-    print(f"Using {n_comp} PCA components for hand clustering (≥85% variance).")
+    print(f"Using {n_comp} PCA components for hand clustering (>=85% variance).")
 
     n_samples = reduced.shape[0]
     k_max = min(10, max(2, n_samples - 1))
@@ -401,7 +401,7 @@ def cluster_nodes(scaled: np.ndarray, node_cols: list[str]) -> None:
     n_comp = min(n_comp, node_scores_full.shape[1])
     reduced = node_scores_full[:, :n_comp]
     print(f"\n=== Node clustering ===")
-    print(f"Using {n_comp} PCA components for node clustering (≥85% variance).")
+    print(f"Using {n_comp} PCA components for node clustering (>=85% variance).")
 
     n_samples = reduced.shape[0]
     k_max = min(10, max(2, n_samples - 1))
@@ -454,7 +454,7 @@ def main() -> None:
 
     df, node_cols, scaled = load_data(args.input)
     hand_labels = df["hand"].tolist()
-    print(f"Loaded {len(hand_labels)} hands × {len(node_cols)} nodes from {args.input}")
+    print(f"Loaded {len(hand_labels)} hands x {len(node_cols)} nodes from {args.input}")
 
     pca_full = run_pca(scaled, hand_labels, node_cols)
     cluster_hands(scaled, hand_labels, pca_full)
