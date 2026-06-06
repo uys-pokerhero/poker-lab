@@ -17,6 +17,17 @@ This repo is my “Poker Lab” for 2026: small tools and experiments to study a
 
 Code lives in `src/pokerlab/bankroll.py`.
 
+### Web apps (TypeScript + React)
+
+Small embeddable widgets for [uyspokerhero.com](https://www.uyspokerhero.com/),
+each built with Vite and deployed to GitHub Pages:
+
+- **`variance-calculator/`**: cash-game variance, risk of ruin, and a fan chart.
+- **`hero-map/`**: interactive map widget.
+- **`preflop-trainer/`**: a drill for memorizing the UTG opening range &mdash;
+  identify each hand's group and the correct response to a 3-bet, with a running
+  success rate. See `preflop-trainer/README.md`.
+
 ## Quickstart (Python)
 
 Create a virtual environment and install:
@@ -51,6 +62,7 @@ python3 -m pokerlab bankroll simulate --winrate-bb100 5 --sd-bb100 80 --hands 20
 - `src/pokerlab/`: Python package code (tools live here)
 - `tests/`: pytest tests
 - `notebooks/`: notebook-based analysis workflows
+- `variance-calculator/`, `hero-map/`, `preflop-trainer/`: TypeScript/React widgets
 
 ## Analysis notebooks
 
