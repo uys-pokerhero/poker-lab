@@ -2,19 +2,19 @@ import { describe, it, expect } from "vitest";
 import { HANDS, GROUPS, parseCode, formatGroup } from "../core/hands";
 
 describe("HANDS data", () => {
-  it("contains exactly 37 hand classes", () => {
-    expect(HANDS).toHaveLength(37);
+  it("contains exactly 74 hand classes", () => {
+    expect(HANDS).toHaveLength(74);
   });
 
-  it("totals 216 combinations across all hands", () => {
+  it("totals 442 combinations across all hands", () => {
     const total = HANDS.reduce((sum, h) => sum + h.weight, 0);
-    expect(total).toBe(216);
+    expect(total).toBe(442);
   });
 
-  it("uses only the six allowed groups", () => {
+  it("uses only the eight allowed groups", () => {
     const allowed = new Set<number>(GROUPS);
     for (const h of HANDS) {
-      expect(allowed.has(h.group)).toBe(true);
+      expect(allowed.has(h.group), h.code).toBe(true);
     }
   });
 
@@ -35,23 +35,43 @@ describe("HANDS data", () => {
     }
   });
 
-  it.each([
+  it("uses canonical codes with an 'o' suffix for offsuit hands", () => {
+    const akOff = HANDS.find((h) => h.code === "AKo");
+    const akSuited = HANDS.find((h) => h.code === "AKs");
+    expect(akOff?.type).toBe("offsuit");
+    expect(akSuited?.type).toBe("suited");
+    // A9 appears both offsuit (3.5) and suited (2.5).
+    expect(HANDS.find((h) => h.code === "A9o")?.group).toBe(3.5);
+    expect(HANDS.find((h) => h.code === "A9s")?.group).toBe(2.5);
+  });
+
+  it.each<[string, number]>([
     ["AA", 0.8],
-    ["AKo", 0.8],
     ["AKs", 0.8],
     ["KQs", 1.0],
     ["AQo", 1.5],
-    ["TT", 1.5],
+    ["A5s", 1.5],
     ["99", 2.0],
-    ["66", 2.0],
-    ["KQo", 2.5],
-    ["A9s", 2.5],
+    ["QJs", 2.5],
     ["55", 3.0],
     ["A3s", 3.0],
-  ])("places %s in group %f", (code, group) => {
+    ["KTo", 3.5],
+    ["44", 3.5],
+    ["A2s", 3.5],
+    ["22", 4.0],
+    ["A8o", 4.0],
+    ["JTo", 4.0],
+    ["K2s", 4.0],
+  ])("places %s in group %d", (code, group) => {
     const hand = HANDS.find((h) => h.code === code);
     expect(hand, code).toBeDefined();
     expect(hand!.group).toBe(group);
+  });
+
+  it("does not expose raw offsuit codes without the 'o' suffix", () => {
+    // The user data writes offsuit as "KT"; the canonical code is "KTo".
+    expect(HANDS.find((h) => h.code === "KT")).toBeUndefined();
+    expect(HANDS.find((h) => h.code === "KTo")).toBeDefined();
   });
 });
 
@@ -64,8 +84,8 @@ describe("parseCode", () => {
     expect(parseCode("AKs")).toEqual({ type: "suited", high: "A", low: "K" });
   });
 
-  it("parses offsuit hands", () => {
-    expect(parseCode("KJo")).toEqual({ type: "offsuit", high: "K", low: "J" });
+  it("parses offsuit hands written without a suffix", () => {
+    expect(parseCode("JT")).toEqual({ type: "offsuit", high: "J", low: "T" });
   });
 
   it("orders ranks regardless of input order", () => {
@@ -77,6 +97,7 @@ describe("formatGroup", () => {
   it("always shows one decimal place", () => {
     expect(formatGroup(1)).toBe("1.0");
     expect(formatGroup(0.8)).toBe("0.8");
-    expect(formatGroup(3)).toBe("3.0");
+    expect(formatGroup(3.5)).toBe("3.5");
+    expect(formatGroup(4)).toBe("4.0");
   });
 });

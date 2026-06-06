@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { PlayingCard } from "./components/PlayingCard";
 import { GroupSelector } from "./components/GroupSelector";
 import { ActionSelector } from "./components/ActionSelector";
@@ -6,10 +6,11 @@ import { ScorePanel } from "./components/ScorePanel";
 import { Feedback } from "./components/Feedback";
 import { GROUPS, formatGroup, type Group } from "../core/hands";
 import {
-  actionForGroup,
-  ACTION_SHORT,
+  SCENARIOS,
+  scenarioForRound,
+  ACTION_LABEL,
   type Action,
-} from "../core/strategy";
+} from "../core/scenarios";
 import {
   nextQuestion,
   evaluate,
@@ -24,6 +25,16 @@ import "./styles.css";
 type Phase = "idle" | "guessing" | "revealed";
 
 const STORAGE_KEY = "pvh-preflop-trainer-stats-v1";
+
+/** Colour tone used for an action's tag/label in the reference legend. */
+const ACTION_TONE: Record<Action, "raise" | "call" | "fold"> = {
+  "open-raise": "raise",
+  "3bet": "raise",
+  "open-call": "call",
+  call: "call",
+  "open-fold": "fold",
+  fold: "fold",
+};
 
 function loadStats(): Stats {
   try {
@@ -43,6 +54,9 @@ export function App() {
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [stats, setStats] = useState<Stats>(loadStats);
 
+  // Counts hands dealt this session; drives the fixed scenario rotation.
+  const roundRef = useRef(0);
+
   // Persist the running score so it survives a reload.
   useEffect(() => {
     try {
@@ -53,7 +67,9 @@ export function App() {
   }, [stats]);
 
   const deal = useCallback(() => {
-    setQuestion(nextQuestion());
+    const scenario = scenarioForRound(roundRef.current);
+    roundRef.current += 1;
+    setQuestion(nextQuestion(scenario));
     setGuessGroup(null);
     setGuessAction(null);
     setVerdict(null);
@@ -65,7 +81,7 @@ export function App() {
   const submit = useCallback(() => {
     if (phase !== "guessing" || !question) return;
     if (guessGroup === null || guessAction === null) return;
-    const v = evaluate(question.hand, { group: guessGroup, action: guessAction });
+    const v = evaluate(question, { group: guessGroup, action: guessAction });
     setVerdict(v);
     setStats((s) => applyVerdict(s, v));
     setPhase("revealed");
@@ -89,13 +105,6 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, ready, submit, deal]);
 
-  // Group the strategy by action for the reference legend.
-  const groupsByAction = useMemo(() => {
-    const map: Record<Action, Group[]> = { raise: [], call: [], fold: [] };
-    for (const g of GROUPS) map[actionForGroup(g)].push(g);
-    return map;
-  }, []);
-
   return (
     <div className="pvh-preflop-root">
       <nav className="back-nav">
@@ -105,16 +114,16 @@ export function App() {
       </nav>
 
       <h1 className="page-title">Preflop Trainer</h1>
-      <p className="page-subtitle">UTG Open &mdash; group &amp; response to a 3-bet</p>
 
       <main className="game">
         {phase === "idle" ? (
           <section className="intro">
             <p className="intro-text">
-              You're first to act (UTG) and you open-raise. A later position{" "}
-              <strong>3-bets</strong> you. For each hand, identify the{" "}
-              <strong>group</strong> it belongs to and the correct{" "}
-              <strong>response</strong> to the 3-bet.
+              Each round deals two hole cards. Identify the hand's{" "}
+              <strong>group</strong> and choose the correct{" "}
+              <strong>play</strong> for the spot. The drill rotates through{" "}
+              <strong>EP Open</strong>, <strong>MP Open</strong>, and facing an{" "}
+              <strong>Early 3-Bet</strong>.
             </p>
             <button type="button" className="primary-btn" onClick={deal}>
               Start Game
@@ -125,7 +134,10 @@ export function App() {
             <>
               <ScorePanel stats={stats} onReset={resetStats} />
 
-              <div className="position-badge">UTG Open vs 3-bet</div>
+              <div className="scenario">
+                <div className="scenario-badge">{question.scenario.label}</div>
+                <div className="scenario-hint">{question.scenario.hint}</div>
+              </div>
 
               <div className="cards">
                 <PlayingCard card={question.cards[0]} />
@@ -140,6 +152,7 @@ export function App() {
               />
 
               <ActionSelector
+                actions={question.scenario.actions}
                 value={guessAction}
                 onChange={setGuessAction}
                 disabled={phase === "revealed"}
@@ -158,7 +171,11 @@ export function App() {
               ) : (
                 verdict && (
                   <>
-                    <Feedback hand={question.hand} verdict={verdict} />
+                    <Feedback
+                      scenario={question.scenario}
+                      hand={question.hand}
+                      verdict={verdict}
+                    />
                     <button type="button" className="primary-btn" onClick={deal}>
                       Next Hand
                     </button>
@@ -173,24 +190,36 @@ export function App() {
       <details className="strategy-ref">
         <summary>Strategy &amp; scoring</summary>
         <div className="strategy-body">
-          <p>
-            UTG-open response to a 3-bet, by group (tuple{" "}
-            <code>(0.8, 2.0, 3.0)</code>):
-          </p>
-          <ul className="strategy-list">
-            {(["raise", "call", "fold"] as Action[]).map((a) => (
-              <li key={a}>
-                <span className={`tag tag-${a}`}>{ACTION_SHORT[a]}</span>
-                {a === "raise" && " (4-bet)"} &mdash; group
-                {groupsByAction[a].length > 1 ? "s " : " "}
-                {groupsByAction[a].map(formatGroup).join(", ")}
-              </li>
-            ))}
-          </ul>
+          {SCENARIOS.map((scenario) => (
+            <div key={scenario.id} className="strategy-scenario">
+              <div className="strategy-scenario-title">{scenario.label}</div>
+              <ul className="strategy-list">
+                {scenario.actions
+                  .map((action) => ({
+                    action,
+                    groups: GROUPS.filter(
+                      (g) => scenario.correctAction(g) === action
+                    ),
+                  }))
+                  .filter((row) => row.groups.length > 0)
+                  .map(({ action, groups }) => (
+                    <li key={action}>
+                      <span className={`tag tag-${ACTION_TONE[action]}`}>
+                        {ACTION_LABEL[action]}
+                      </span>
+                      <span className="strategy-groups">
+                        {groups.map(formatGroup).join(", ")}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
           <p className="strategy-note">
-            A hand counts as correct only if <strong>both</strong> the group and
-            the response are right. Press <kbd>Enter</kbd> to submit and to
-            advance.
+            Scenarios rotate in order: EP Open &rarr; MP Open &rarr; Early
+            3-Bet. A hand counts as correct only if <strong>both</strong> the
+            group and the play are right. Press <kbd>Enter</kbd> to submit and
+            to advance.
           </p>
         </div>
       </details>

@@ -1,6 +1,8 @@
-import { ACTIONS, ACTION_LABELS, type Action } from "../../core/strategy";
+import { ACTION_LABEL, type Action } from "../../core/scenarios";
 
 interface ActionSelectorProps {
+  /** Action options offered by the current scenario, in display order. */
+  actions: readonly Action[];
   value: Action | null;
   onChange: (action: Action) => void;
   disabled?: boolean;
@@ -9,16 +11,23 @@ interface ActionSelectorProps {
 }
 
 export function ActionSelector({
+  actions,
   value,
   onChange,
   disabled = false,
   correct = null,
 }: ActionSelectorProps) {
+  // Two columns for the longer 4-option open menus, one row for shorter ones.
+  const columns = actions.length > 3 ? 2 : actions.length;
+
   return (
     <div className="selector">
-      <div className="selector-label">Response to 3-bet</div>
-      <div className="action-grid">
-        {ACTIONS.map((a) => {
+      <div className="selector-label">Your play</div>
+      <div
+        className="action-grid"
+        style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+      >
+        {actions.map((a) => {
           const classes = ["choice-btn", "action-btn"];
           if (correct !== null) {
             // Revealed: show correctness only, not the original selection.
@@ -35,7 +44,7 @@ export function ActionSelector({
               disabled={disabled}
               onClick={() => onChange(a)}
             >
-              {ACTION_LABELS[a]}
+              {ACTION_LABEL[a]}
             </button>
           );
         })}

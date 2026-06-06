@@ -1,19 +1,23 @@
 import { HANDS, type Group, type HandClass } from "./hands";
 import { dealCards, type Card } from "./deck";
 import { weightedPick } from "./sampling";
-import { actionForGroup, type Action, type Strategy } from "./strategy";
+import { type Action, type Scenario } from "./scenarios";
 
-/** A single drill question: a hand class plus the concrete cards shown. */
+/** A single drill question: a scenario, a hand class, and the cards shown. */
 export interface Question {
+  scenario: Scenario;
   hand: HandClass;
   cards: [Card, Card];
 }
 
-/** Draw the next weighted-random hand and deal cards for it. */
-export function nextQuestion(rng: () => number = Math.random): Question {
+/** Draw the next weighted-random hand and deal cards for the given scenario. */
+export function nextQuestion(
+  scenario: Scenario,
+  rng: () => number = Math.random
+): Question {
   const hand = weightedPick(HANDS, (h) => h.weight, rng);
   const cards = dealCards(hand, rng);
-  return { hand, cards };
+  return { scenario, hand, cards };
 }
 
 /** What the player submitted. */
@@ -32,14 +36,10 @@ export interface Verdict {
   correctAction: Action;
 }
 
-/** Score a guess against the truth for a given hand. */
-export function evaluate(
-  hand: HandClass,
-  guess: Guess,
-  strategy?: Strategy
-): Verdict {
-  const correctGroup = hand.group;
-  const correctAction = actionForGroup(hand.group, strategy);
+/** Score a guess against the truth for a given question. */
+export function evaluate(question: Question, guess: Guess): Verdict {
+  const correctGroup = question.hand.group;
+  const correctAction = question.scenario.correctAction(question.hand.group);
   const groupOk = guess.group === correctGroup;
   const actionOk = guess.action === correctAction;
   return {

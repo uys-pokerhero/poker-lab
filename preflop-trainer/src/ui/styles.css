@@ -65,15 +65,8 @@
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin: 0;
-  padding-top: 24px;
-}
-
-.page-subtitle {
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-muted);
   margin: 0 0 8px;
+  padding-top: 24px;
 }
 
 /* ---- Game container ---- */
@@ -195,18 +188,29 @@
   cursor: not-allowed;
 }
 
-/* ---- Position badge ---- */
-.position-badge {
-  align-self: center;
-  padding: 4px 14px;
-  border: 1px solid var(--border);
+/* ---- Scenario badge ---- */
+.scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.scenario-badge {
+  padding: 4px 16px;
+  border: 1px solid var(--accent);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+.scenario-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 /* ---- Cards ---- */
@@ -289,13 +293,12 @@
 
 .group-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
@@ -329,16 +332,19 @@
   color: var(--accent);
 }
 
+/* Reveal states snap instantly (no transition) so feedback is unambiguous. */
 .choice-btn.correct {
   background: var(--accent-dim);
   border-color: var(--accent);
   color: var(--accent);
+  transition: none;
 }
 
 .choice-btn.wrong {
   background: var(--danger-dim);
   border-color: var(--danger);
   color: var(--danger);
+  transition: none;
 }
 
 .choice-btn:disabled {
@@ -442,12 +448,25 @@
   color: var(--text);
 }
 
+.strategy-scenario {
+  margin-bottom: 14px;
+}
+
+.strategy-scenario-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
 .strategy-list {
   list-style: none;
-  margin: 10px 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .strategy-list li {
@@ -455,6 +474,12 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.strategy-groups {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .tag {

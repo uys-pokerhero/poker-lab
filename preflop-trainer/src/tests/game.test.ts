@@ -5,8 +5,12 @@ import {
   applyVerdict,
   successRate,
   EMPTY_STATS,
+  type Question,
+  type Verdict,
 } from "../core/game";
 import { HANDS, type HandClass } from "../core/hands";
+import { dealCards } from "../core/deck";
+import { SCENARIOS, type ScenarioId } from "../core/scenarios";
 
 function findHand(code: string): HandClass {
   const hand = HANDS.find((h) => h.code === code);
@@ -14,9 +18,21 @@ function findHand(code: string): HandClass {
   return hand;
 }
 
+function scenario(id: ScenarioId) {
+  const s = SCENARIOS.find((x) => x.id === id);
+  if (!s) throw new Error(`missing scenario ${id}`);
+  return s;
+}
+
+function question(code: string, id: ScenarioId): Question {
+  const hand = findHand(code);
+  return { scenario: scenario(id), hand, cards: dealCards(hand, () => 0) };
+}
+
 describe("nextQuestion", () => {
-  it("returns a known hand with two dealt cards", () => {
-    const q = nextQuestion(() => 0);
+  it("returns the requested scenario with a known hand and two cards", () => {
+    const q = nextQuestion(scenario("mp-open"), () => 0);
+    expect(q.scenario.id).toBe("mp-open");
     expect(HANDS).toContain(q.hand);
     expect(q.cards).toHaveLength(2);
   });
@@ -24,34 +40,64 @@ describe("nextQuestion", () => {
 
 describe("evaluate", () => {
   it("counts a win only when group and action are both correct", () => {
-    const aa = findHand("AA"); // group 0.8 -> raise
-    const v = evaluate(aa, { group: 0.8, action: "raise" });
+    // AA: group 0.8 -> EP open-raise
+    const v = evaluate(question("AA", "ep-open"), {
+      group: 0.8,
+      action: "open-raise",
+    });
     expect(v).toMatchObject({ groupOk: true, actionOk: true, win: true });
   });
 
-  it("fails the whole hand when the group is wrong", () => {
-    const aa = findHand("AA");
-    const v = evaluate(aa, { group: 1.0, action: "raise" });
-    expect(v.groupOk).toBe(false);
-    expect(v.win).toBe(false);
+  it("applies the scenario-specific action (AA 3-bets in Early 3-Bet)", () => {
+    const v = evaluate(question("AA", "early-3bet"), {
+      group: 0.8,
+      action: "3bet",
+    });
+    expect(v.correctAction).toBe("3bet");
+    expect(v.win).toBe(true);
+  });
+
+  it("maps a too-weak hand to a plain fold in an open spot", () => {
+    // 22: group 4.0 -> EP fold (do not open)
+    const v = evaluate(question("22", "ep-open"), {
+      group: 4.0,
+      action: "fold",
+    });
+    expect(v.correctAction).toBe("fold");
+    expect(v.win).toBe(true);
   });
 
   it("judges the action against the true group, not the guessed one", () => {
-    const tt = findHand("TT"); // group 1.5 -> call
-    const v = evaluate(tt, { group: 3.0, action: "call" });
-    expect(v.actionOk).toBe(true); // call is correct for the real group
+    // TT: group 1.5 -> EP open-call
+    const v = evaluate(question("TT", "ep-open"), {
+      group: 4.0,
+      action: "open-call",
+    });
+    expect(v.actionOk).toBe(true);
     expect(v.groupOk).toBe(false);
     expect(v.win).toBe(false);
     expect(v.correctGroup).toBe(1.5);
-    expect(v.correctAction).toBe("call");
+    expect(v.correctAction).toBe("open-call");
   });
 });
 
 describe("applyVerdict / successRate", () => {
-  it("accumulates plays, wins, and streaks", () => {
-    const win = { groupOk: true, actionOk: true, win: true, correctGroup: 0.8 as const, correctAction: "raise" as const };
-    const loss = { groupOk: false, actionOk: false, win: false, correctGroup: 0.8 as const, correctAction: "raise" as const };
+  const win: Verdict = {
+    groupOk: true,
+    actionOk: true,
+    win: true,
+    correctGroup: 0.8,
+    correctAction: "open-raise",
+  };
+  const loss: Verdict = {
+    groupOk: false,
+    actionOk: false,
+    win: false,
+    correctGroup: 0.8,
+    correctAction: "open-raise",
+  };
 
+  it("accumulates plays, wins, and streaks", () => {
     let s = applyVerdict(EMPTY_STATS, win);
     s = applyVerdict(s, win);
     expect(s.streak).toBe(2);

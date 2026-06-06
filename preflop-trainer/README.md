@@ -1,23 +1,41 @@
 # Preflop Trainer
 
-A client-side drill for memorizing a UTG opening range. Each round deals two
-hole cards drawn (weighted by combinations) from the hands UTG opens with. You
-identify the **group** the hand belongs to and the correct **response to a
-3-bet** (open & raise / call / fold). The widget tracks hands played, success
-rate, and streak.
+A client-side drill for memorizing preflop ranges. Each round deals two hole
+cards drawn (weighted by combinations) from the full hand universe, and the
+player identifies the hand's **group** and the correct **play** for the current
+scenario. The widget tracks hands played, success rate, and streak.
 
-## Scenario (prototype)
+## Scenarios
 
-- **Position:** UTG open, facing a 3-bet.
-- **Hands:** only the hands UTG opens with, across groups 0.8, 1.0, 1.5, 2.0,
-  2.5 and 3.0. Hands are sampled in proportion to their combination count.
-- **Strategy tuple `(0.8, 2.0, 3.0)`:**
-  - group `0.8` &rarr; raise (4-bet)
-  - groups `1.0` / `1.5` / `2.0` &rarr; call
-  - groups `2.5` / `3.0` &rarr; fold
-- A hand is scored correct only if **both** the group and the response match.
+The drill rotates through three scenarios in a fixed order, repeating:
 
-Other positions and scenarios are intentionally out of scope for this version.
+1. **EP OPEN** — first to act from early position.
+2. **MP OPEN** — first to act from middle position.
+3. **EARLY 3-BET** — facing an early-position open.
+
+Hands are sampled from the whole universe (groups 0.8 – 4.0) in every scenario,
+so weak hands that fall outside an opening range show up too — the correct play
+there is just to fold.
+
+### Strategies
+
+Open scenarios use a tuple `(raiseMax, callMax, foldMax)`; the 3-bet scenario
+uses `(threeBetMax, callMax)`:
+
+| Group | EP OPEN `(0.8, 2.0, 3.0)` | MP OPEN `(1.0, 2.5, 3.5)` | EARLY 3-BET `(1.5, 2.5)` |
+|------|------|------|------|
+| 0.8 | Open & Raise | Open & Raise | 3-Bet |
+| 1.0 | Open & Call | Open & Raise | 3-Bet |
+| 1.5 | Open & Call | Open & Call | 3-Bet |
+| 2.0 | Open & Call | Open & Call | Call |
+| 2.5 | Open & Fold | Open & Call | Call |
+| 3.0 | Open & Fold | Open & Fold | Fold |
+| 3.5 | Fold | Open & Fold | Fold |
+| 4.0 | Fold | Fold | Fold |
+
+In the open scenarios, **Open & Fold** means open-raise then fold to a 3-bet,
+while **Fold** means don't open at all. A hand is scored correct only if
+**both** the group and the play match.
 
 ## Quick Start
 
@@ -27,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Open the URL printed by Vite (usually `http://localhost:5173`).
+Open the URL printed by Vite (usually `http://localhost:5173/poker-lab/`).
 
 ## Build for Production
 
@@ -53,8 +71,8 @@ See `public/embed-example.html` for a full example.
 npm test
 ```
 
-Covers the hand data (counts, weights, group assignments), the strategy
-mapping, weighted sampling, card dealing, and game scoring.
+Covers the hand data (74 hands, 442 combos, group assignments), the per-scenario
+strategy matrix and rotation, weighted sampling, card dealing, and game scoring.
 
 ## Tech Stack
 
@@ -63,8 +81,10 @@ mapping, weighted sampling, card dealing, and game scoring.
 - vitest for unit tests
 - No external game/poker libraries — hand data and logic are hand-rolled
 
-## Adding hands or groups
+## Adding hands, groups, or scenarios
 
-Hand data lives in `src/core/hands.ts` (the `RAW` table). The 3-bet strategy
-lives in `src/core/strategy.ts` (`DEFAULT_STRATEGY`). Both are covered by tests
-in `src/tests/`.
+- **Hands** live in `src/core/hands.ts` (the `RAW` table, kept in source order).
+- **Scenarios and strategies** live in `src/core/scenarios.ts` (`SCENARIOS`, with
+  each scenario's threshold tuple and action menu).
+
+Both are covered by tests in `src/tests/`.
