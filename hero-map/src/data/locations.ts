@@ -36,9 +36,9 @@ export const locations: MapLocation[] = [
     id: "preflop",
     name: "Pre-Flop Strategy",
     description: "Opening ranges, 3-betting, and pre-flop decision making.",
-    url: "#preflop",
+    url: "/preflop",
     icon: "\u2694",
-    available: false,
+    available: true,
   },
   {
     id: "postflop",
