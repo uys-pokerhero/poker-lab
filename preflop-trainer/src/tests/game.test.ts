@@ -39,13 +39,34 @@ describe("nextQuestion", () => {
 });
 
 describe("evaluate", () => {
-  it("counts a win only when group and action are both correct", () => {
+  it("counts a win when the action is correct", () => {
     // AA: group 0.8 -> EP open-raise
     const v = evaluate(question("AA", "ep-open"), {
       group: 0.8,
       action: "open-raise",
     });
     expect(v).toMatchObject({ groupOk: true, actionOk: true, win: true });
+  });
+
+  it("still wins on a correct action even when the group is wrong", () => {
+    // AA: group 0.8 -> EP open-raise; guess a wrong group but the right action.
+    const v = evaluate(question("AA", "ep-open"), {
+      group: 4.0,
+      action: "open-raise",
+    });
+    expect(v.groupOk).toBe(false);
+    expect(v.actionOk).toBe(true);
+    expect(v.win).toBe(true); // group is not penalised
+  });
+
+  it("loses on a wrong action even when the group is right", () => {
+    const v = evaluate(question("AA", "ep-open"), {
+      group: 0.8,
+      action: "open-fold",
+    });
+    expect(v.groupOk).toBe(true);
+    expect(v.actionOk).toBe(false);
+    expect(v.win).toBe(false);
   });
 
   it("applies the scenario-specific action (AA 3-bets in Early 3-Bet)", () => {
@@ -75,7 +96,7 @@ describe("evaluate", () => {
     });
     expect(v.actionOk).toBe(true);
     expect(v.groupOk).toBe(false);
-    expect(v.win).toBe(false);
+    expect(v.win).toBe(true); // action is right, so it's a win
     expect(v.correctGroup).toBe(1.5);
     expect(v.correctAction).toBe("open-call");
   });

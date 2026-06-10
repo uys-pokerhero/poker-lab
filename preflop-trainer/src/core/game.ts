@@ -30,7 +30,10 @@ export interface Guess {
 export interface Verdict {
   groupOk: boolean;
   actionOk: boolean;
-  /** A win requires both the group and the action to be correct. */
+  /**
+   * Whether the hand counts as a win. The action is what matters, so this is
+   * the action alone — picking the wrong group is never penalised.
+   */
   win: boolean;
   correctGroup: Group;
   correctAction: Action;
@@ -45,7 +48,8 @@ export function evaluate(question: Question, guess: Guess): Verdict {
   return {
     groupOk,
     actionOk,
-    win: groupOk && actionOk,
+    // Scored on the action only; the group is an unscored self-check.
+    win: actionOk,
     correctGroup,
     correctAction,
   };
@@ -54,11 +58,11 @@ export function evaluate(question: Question, guess: Guess): Verdict {
 /** Running tally across a session. */
 export interface Stats {
   played: number;
-  /** Hands where both group and action were correct. */
+  /** Wins, i.e. hands where the action was correct. */
   correct: number;
-  /** Hands where the group alone was correct. */
+  /** Hands where the (unscored) group self-check was also correct. */
   groupCorrect: number;
-  /** Hands where the action alone was correct. */
+  /** Hands where the action was correct (same as `correct`; kept for clarity). */
   actionCorrect: number;
   streak: number;
   bestStreak: number;
