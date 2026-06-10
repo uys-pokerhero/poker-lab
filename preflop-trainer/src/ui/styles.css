@@ -347,6 +347,13 @@
   transition: none;
 }
 
+/* The user's group pick when it isn't the answer — neutral, not penalised. */
+.choice-btn.picked {
+  border-color: var(--text-muted);
+  color: var(--text);
+  transition: none;
+}
+
 .choice-btn:disabled {
   cursor: default;
 }
@@ -408,6 +415,20 @@
 
 .feedback-lines li.bad .feedback-mark {
   color: var(--danger);
+}
+
+.feedback-group {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.feedback-group.ok {
+  color: var(--accent);
+}
+
+.feedback-group strong {
+  color: var(--text);
 }
 
 .feedback-explain {

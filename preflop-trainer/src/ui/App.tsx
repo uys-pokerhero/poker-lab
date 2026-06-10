@@ -217,9 +217,9 @@ export function App() {
           ))}
           <p className="strategy-note">
             Scenarios rotate in order: EP Open &rarr; MP Open &rarr; Early
-            3-Bet. A hand counts as correct only if <strong>both</strong> the
-            group and the play are right. Press <kbd>Enter</kbd> to submit and
-            to advance.
+            3-Bet. You're scored on the <strong>play</strong> &mdash; the group
+            is a self-check and doesn't affect your score. Press{" "}
+            <kbd>Enter</kbd> to submit and to advance.
           </p>
         </div>
       </details>

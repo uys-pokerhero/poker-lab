@@ -21,9 +21,10 @@ export function GroupSelector({
         {GROUPS.map((g) => {
           const classes = ["choice-btn"];
           if (correct !== null) {
-            // Revealed: show correctness only, not the original selection.
+            // Revealed: highlight the right group; the group is not scored, so
+            // a wrong pick is shown neutrally ("picked"), never as an error.
             if (g === correct) classes.push("correct");
-            else if (g === value) classes.push("wrong");
+            else if (g === value) classes.push("picked");
           } else if (value === g) {
             classes.push("selected");
           }
