@@ -17,8 +17,9 @@ export function ActionSelector({
   disabled = false,
   correct = null,
 }: ActionSelectorProps) {
-  // Two columns for the longer 4-option open menus, one row for shorter ones.
-  const columns = actions.length > 3 ? 2 : actions.length;
+  // 1–3 options fit in one row; 4 sit as a 2x2; 5+ (SB's six) use 3 columns.
+  const columns =
+    actions.length <= 3 ? actions.length : actions.length === 4 ? 2 : 3;
 
   return (
     <div className="selector">

@@ -25,9 +25,9 @@ each built with Vite and deployed to GitHub Pages:
 - **`variance-calculator/`**: cash-game variance, risk of ruin, and a fan chart.
 - **`hero-map/`**: interactive map widget.
 - **`preflop-trainer/`**: a drill for memorizing preflop ranges &mdash; identify
-  each hand's group and the correct play across rotating scenarios (EP Open, MP
-  Open, Early 3-Bet), with a running success rate. See
-  `preflop-trainer/README.md`.
+  each hand's group and the correct play across nine randomly-drawn scenarios
+  (opens from every position, blind-vs-blind, and 3-bets), with a running
+  success rate. See `preflop-trainer/README.md`.
 
 ## Quickstart (Python)
 
