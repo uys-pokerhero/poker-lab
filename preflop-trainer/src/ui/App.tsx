@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PlayingCard } from "./components/PlayingCard";
 import { GroupSelector } from "./components/GroupSelector";
 import { ActionSelector } from "./components/ActionSelector";
@@ -7,7 +7,7 @@ import { Feedback } from "./components/Feedback";
 import { GROUPS, formatGroup, type Group } from "../core/hands";
 import {
   SCENARIOS,
-  scenarioForRound,
+  randomScenario,
   ACTION_LABEL,
   type Action,
 } from "../core/scenarios";
@@ -30,9 +30,13 @@ const STORAGE_KEY = "pvh-preflop-trainer-stats-v1";
 const ACTION_TONE: Record<Action, "raise" | "call" | "fold"> = {
   "open-raise": "raise",
   "3bet": "raise",
+  raise: "raise",
   "open-call": "call",
+  "limp-call": "call",
   call: "call",
+  check: "call",
   "open-fold": "fold",
+  "limp-fold": "fold",
   fold: "fold",
 };
 
@@ -54,9 +58,6 @@ export function App() {
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [stats, setStats] = useState<Stats>(loadStats);
 
-  // Counts hands dealt this session; drives the fixed scenario rotation.
-  const roundRef = useRef(0);
-
   // Persist the running score so it survives a reload.
   useEffect(() => {
     try {
@@ -67,9 +68,7 @@ export function App() {
   }, [stats]);
 
   const deal = useCallback(() => {
-    const scenario = scenarioForRound(roundRef.current);
-    roundRef.current += 1;
-    setQuestion(nextQuestion(scenario));
+    setQuestion(nextQuestion(randomScenario()));
     setGuessGroup(null);
     setGuessAction(null);
     setVerdict(null);
@@ -119,11 +118,11 @@ export function App() {
         {phase === "idle" ? (
           <section className="intro">
             <p className="intro-text">
-              Each round deals two hole cards. Identify the hand's{" "}
-              <strong>group</strong> and choose the correct{" "}
-              <strong>play</strong> for the spot. The drill rotates through{" "}
-              <strong>EP Open</strong>, <strong>MP Open</strong>, and facing an{" "}
-              <strong>Early 3-Bet</strong>.
+              Each round draws a <strong>random spot</strong> and deals two hole
+              cards. Identify the hand's <strong>group</strong> and choose the
+              correct <strong>play</strong>. Spots span opens from every
+              position (EP, MP, CO, BTN, SB), big blind vs. a limp, and 3-bets
+              (early, late, and from the big blind).
             </p>
             <button type="button" className="primary-btn" onClick={deal}>
               Start Game
@@ -216,10 +215,9 @@ export function App() {
             </div>
           ))}
           <p className="strategy-note">
-            Scenarios rotate in order: EP Open &rarr; MP Open &rarr; Early
-            3-Bet. You're scored on the <strong>play</strong> &mdash; the group
-            is a self-check and doesn't affect your score. Press{" "}
-            <kbd>Enter</kbd> to submit and to advance.
+            A random scenario is drawn each hand. You're scored on the{" "}
+            <strong>play</strong> &mdash; the group is a self-check and doesn't
+            affect your score. Press <kbd>Enter</kbd> to submit and to advance.
           </p>
         </div>
       </details>

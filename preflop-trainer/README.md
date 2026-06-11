@@ -1,41 +1,53 @@
 # Preflop Trainer
 
-A client-side drill for memorizing preflop ranges. Each round deals two hole
-cards drawn (weighted by combinations) from the full hand universe, and the
-player identifies the hand's **group** and the correct **play** for the current
-scenario. The widget tracks hands played, success rate, and streak.
+A client-side drill for memorizing preflop ranges. Each round draws a **random
+scenario** and deals two hole cards (weighted by combinations) from the full
+169-hand matrix. The player identifies the hand's **group** and the correct
+**play**. Scoring is on the play only — the group is an unscored self-check.
+The widget tracks hands played, success rate, and streak.
 
 ## Scenarios
 
-The drill rotates through three scenarios in a fixed order, repeating:
+A random scenario is drawn each hand from these nine:
 
-1. **EP OPEN** — first to act from early position.
-2. **MP OPEN** — first to act from middle position.
-3. **EARLY 3-BET** — facing an early-position open.
+| # | Scenario | Spot |
+|---|----------|------|
+| 1 | **EP OPEN** | Opening from early position |
+| 2 | **MP OPEN** | Opening from middle position |
+| 3 | **CO OPEN** | Opening from the cutoff |
+| 4 | **BTN OPEN** | Opening from the button |
+| 5 | **SB OPEN** | Opening from the small blind (raise or limp) |
+| 6 | **BB vs SB LIMP** | Big blind facing a small-blind limp |
+| 7 | **EARLY 3-BET** | Facing an early-position open |
+| 8 | **LATE 3-BET** | Facing a late-position open |
+| 9 | **BB 3-BET** | In the big blind, facing an open |
 
-Hands are sampled from the whole universe (groups 0.8 – 4.0) in every scenario,
-so weak hands that fall outside an opening range show up too — the correct play
-there is just to fold.
+Hands are sampled from the whole 169-hand universe (groups 0.8 – 6.0), so weak
+hands outside a given range show up too — the correct play there is just to fold
+(or, in the blinds, to limp or check).
 
-### Strategies
+### Strategy matrix
 
-Open scenarios use a tuple `(raiseMax, callMax, foldMax)`; the 3-bet scenario
-uses `(threeBetMax, callMax)`:
+| Grp | EP | MP | CO | BTN | SB | BBvLimp | Early3B | Late3B | BB3B |
+|----|----|----|----|----|----|---------|---------|--------|------|
+|0.8 | R | R | R | R | R | Rz | 3B | 3B | 3B |
+|1.0 | C | R | R | R | R | Rz | 3B | 3B | 3B |
+|1.5 | C | C | R | R | C | Rz | 3B | 3B | 3B |
+|2.0 | C | C | C | C | C | Rz | Ca | 3B | 3B |
+|2.5 | OF | C | C | C | OF | Rz | Ca | Ca | Ca |
+|3.0 | OF | OF | C | C | OF | Rz | · | Ca | Ca |
+|3.5 | · | OF | OF | C | LC | Rz | · | · | Ca |
+|4.0 | · | · | OF | C | LC | Rz | · | · | Ca |
+|5.0 | · | · | · | OF | LF | Ck | · | · | Ca |
+|6.0 | · | · | · | · | · | Ck | · | · | · |
 
-| Group | EP OPEN `(0.8, 2.0, 3.0)` | MP OPEN `(1.0, 2.5, 3.5)` | EARLY 3-BET `(1.5, 2.5)` |
-|------|------|------|------|
-| 0.8 | Open & Raise | Open & Raise | 3-Bet |
-| 1.0 | Open & Call | Open & Raise | 3-Bet |
-| 1.5 | Open & Call | Open & Call | 3-Bet |
-| 2.0 | Open & Call | Open & Call | Call |
-| 2.5 | Open & Fold | Open & Call | Call |
-| 3.0 | Open & Fold | Open & Fold | Fold |
-| 3.5 | Fold | Open & Fold | Fold |
-| 4.0 | Fold | Fold | Fold |
+**Legend** — `R`=Open & Raise · `C`=Open & Call · `OF`=Open & Fold · `·`=Fold ·
+`LC`=Limp & Call · `LF`=Limp & Fold · `3B`=3-Bet · `Ca`=Call · `Rz`=Raise ·
+`Ck`=Check
 
 In the open scenarios, **Open & Fold** means open-raise then fold to a 3-bet,
-while **Fold** means don't open at all. A hand is scored correct only if
-**both** the group and the play match.
+while **Fold** means don't enter the pot. A hand is scored correct when the
+**play** matches; the group does not affect the score.
 
 ## Quick Start
 
@@ -71,8 +83,9 @@ See `public/embed-example.html` for a full example.
 npm test
 ```
 
-Covers the hand data (74 hands, 442 combos, group assignments), the per-scenario
-strategy matrix and rotation, weighted sampling, card dealing, and game scoring.
+Covers the hand data (169 hands, 1326 combos, group assignments), the full
+per-scenario strategy matrix, random scenario selection, weighted sampling, card
+dealing, and game scoring.
 
 ## Tech Stack
 
